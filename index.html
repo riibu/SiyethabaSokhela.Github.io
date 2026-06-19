@@ -1,4 +1,96 @@
-My Portfolio
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name | Technical Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
 
+    <header class="navbar">
+        <div class="logo">Portfolio<span>.io</span></div>
+        <nav>
+            <a href="#about">About</a>
+            <a href="#skills">Skills</a>
+            <a href="#projects">Projects</a>
+            <a href="#contact" class="btn-nav">Contact Me</a>
+        </nav>
+    </header>
 
-    Hello World! This is my portfolio.
+    <section id="about" class="hero-section">
+        <div class="hero-content">
+            <h1>Hi, I'm <span class="highlight">Your Name</span></h1>
+            <h2>IT & Cybersecurity Specialist</h2>
+            <p>Passionate about building secure IT infrastructure, managing robust database designs, and deploying technical solutions. Dedicated to finding optimization gaps and ensuring system reliability.</p>
+            <div class="hero-buttons">
+                <a href="#projects" class="btn-primary">View My Work</a>
+                <a href="#" class="btn-secondary" download><i class="fa-solid fa-file-arrow-down"></i> Download CV</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="skills" class="skills-section">
+        <h2 class="section-title">Technical Expertise</h2>
+        <div class="skills-grid">
+            <div class="skill-card">
+                <i class="fa-solid fa-shield-halved skill-icon"></i>
+                <h3>Systems & Security</h3>
+                <p>Windows 11, Linux environments, virtualization via Oracle VirtualBox, and system administration hardening protocols.</p>
+            </div>
+            <div class="skill-card">
+                <i class="fa-solid fa-database skill-icon"></i>
+                <h3>Database Development</h3>
+                <p>Relational database design, writing efficient SQL queries, creating secure database views, and automated triggers.</p>
+            </div>
+            <div class="skill-card">
+                <i class="fa-solid fa-code skill-icon"></i>
+                <h3>Core Foundations</h3>
+                <p>Computer science fundamentals, structural logic, automated script creation, and documentation standards.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects" class="projects-section">
+        <h2 class="section-title">Featured Projects</h2>
+        <div class="projects-grid">
+            
+            <div class="project-card">
+                <div class="project-info">
+                    <span class="project-tag">Database / SQL</span>
+                    <h3>High-Value Client Tracking & Automation</h3>
+                    <p>Designed a relational database schema implementing automated triggers for seamless logging and secure transactional views to optimize data integrity.</p>
+                    <div class="project-links">
+                        <a href="https://github.com" target="_blank"><i class="fa-brands fa-github"></i> View Repository</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-info">
+                    <span class="project-tag">Systems Administration</span>
+                    <h3>Hardware Deployment Optimization</h3>
+                    <p>Authored a comprehensive hardware architecture blueprint outlining system deployment pipelines, component benchmarks, and stress-testing protocols.</p>
+                    <div class="project-links">
+                        <a href="https://github.com" target="_blank"><i class="fa-brands fa-github"></i> View Documentation</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer id="contact">
+        <h2>Let's Connect</h2>
+        <p>Looking for a dedicated technician or cybersecurity analyst to join your team? Reach out via any of the links below.</p>
+        <div class="social-links">
+            <a href="mailto:your.email@example.com" title="Email"><i class="fa-solid fa-envelope"></i></a>
+            <a href="https://linkedin.com" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+            <a href="https://github.com" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        </div>
+        <p class="copyright">&copy; 2026 Your Name. Built entirely on GitHub Pages.</p>
+    </footer>
+
+</body>
+</html>
