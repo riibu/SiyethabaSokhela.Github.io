@@ -72,3 +72,35 @@
     .pixel-text { font-size: 1.8rem; }
     #start-btn { font-size: 1.1rem; padding: 0.8rem 1.8rem; }
 }
+
+
+/* Core Game Layout Positioning */
+#game-gate {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99999;
+    background-color: #090d16;
+    overflow: hidden;
+    cursor: crosshair; /* Changes mouse to crosshair reticle target pointer */
+}
+
+#gateCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* CRT Simulated Retro Monitor Scanlines Overlay */
+#game-gate::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 999999;
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none; /* Allows cursor selection to pass directly straight through the lines layer */
+}
