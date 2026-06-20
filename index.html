@@ -1,11 +1,278 @@
 <!-- Retro Game Gate Screen Overlay -->
+<!-- Interactive Retro Arcade Gate -->
 <div id="game-gate">
     <canvas id="gateCanvas"></canvas>
-    <div id="gate-ui">
-        <h1 class="pixel-text text-flash">READY PLAYER ONE</h1>
-        <button id="start-btn" onclick="unlockPortfolio()">PRESS START</button>
+    <!-- Hidden fallback structural button just in case user clicks wildly -->
+    <div id="gate-fallback-ui" style="position: absolute; bottom: 20px; display: none;">
+        <button onclick="unlockPortfolio()" style="font-family: monospace; padding: 5px 10px;">Skip Intro</button>
     </div>
 </div>
+
+<script>
+    const canvas = document.getElementById('gateCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Game Variables
+    let angle = 0;
+    const bullets = [];
+    const particles = [];
+    let startButtonDestroyed = false;
+    let transitionStarted = false;
+
+    // Target Button State (Centered like the image)
+    const btnWidth = 240;
+    const btnHeight = 60;
+    const btnX = (canvas.width - btnWidth) / 2;
+    const btnY = (canvas.height - btnHeight) / 2 + 100;
+
+    // Rocket Object Properties
+    const rocket = {
+        x: 0,
+        y: 0,
+        width: 45,
+        height: 75,
+        angle: 0
+    };
+
+    // 1. Create Starfield Background (8-bit grid emulation background)
+    const backgroundStars = Array.from({ length: 45 }, () => ({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        size: Math.floor(Math.random() * 3) + 2,
+        speed: Math.random() * 0.8 + 0.2
+    }));
+
+    // Handle Clicking on the Canvas
+    canvas.addEventListener('click', function(e) {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        // Check if user clicked within the bounds of the moving rocket bounding box
+        const dx = mouseX - rocket.x;
+        const dy = mouseY - rocket.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < 50 && !startButtonDestroyed) {
+            // Spawn Green Plasma Bullet from Rocket nose nose towards the target center
+            const targetX = canvas.width / 2;
+            const targetY = btnY + btnHeight / 2;
+            const angleToTarget = Math.atan2(targetY - rocket.y, targetX - rocket.x);
+
+            bullets.push({
+                x: rocket.x,
+                y: rocket.y,
+                vx: Math.cos(angleToTarget) * 12,
+                vy: Math.sin(angleToTarget) * 12,
+                radius: 6
+            });
+
+            // Spark burst muzzle flash
+            for (let i = 0; i < 5; i++) {
+                particles.push({
+                    x: rocket.x,
+                    y: rocket.y,
+                    vx: (Math.random() - 0.5) * 5,
+                    vy: (Math.random() - 0.5) * 5,
+                    color: '#3cfc4c',
+                    alpha: 1,
+                    size: Math.random() * 3 + 2,
+                    decay: 0.04
+                });
+            }
+        }
+    });
+
+    // Drawing Functions
+    function drawPixelRocket(ctx, x, y, sizeScale, rotation) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotation + Math.PI / 2); // Point upward direction natively
+        ctx.scale(sizeScale, sizeScale);
+
+        // Rocket Flame Fins
+        ctx.fillStyle = '#ff6b00';
+        ctx.fillRect(-15, 20, 8, 15);
+        ctx.fillRect(7, 20, 8, 15);
+        ctx.fillStyle = '#ffb800';
+        ctx.fillRect(-11, 20, 4, 10);
+        ctx.fillRect(7, 20, 4, 10);
+
+        // Rocket Main Fuselage Body 
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(-12, -25, 24, 45);
+        ctx.fillStyle = '#0284c7'; // Shadow split side
+        ctx.fillRect(0, -25, 12, 45);
+
+        // Nose Cone Tip
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.moveTo(-12, -25);
+        ctx.lineTo(0, -45);
+        ctx.lineTo(12, -25);
+        ctx.fill();
+
+        // Round Porthole Window
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, -5, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.arc(0, -5, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    function spawnExplosion(x, y, colorPalette) {
+        for (let i = 0; i < 60; i++) {
+            particles.push({
+                x: x,
+                y: y,
+                vx: (Math.random() - 0.5) * 14,
+                vy: (Math.random() - 0.5) * 14,
+                color: colorPalette[Math.floor(Math.random() * colorPalette.length)],
+                alpha: 1,
+                size: Math.random() * 5 + 3,
+                decay: 0.02
+            });
+        }
+    }
+
+    // Engine Loop Automation
+    function updateGame() {
+        ctx.fillStyle = '#090d16'; // Deep space neon blue/black fill
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 1. Draw Starfield
+        ctx.fillStyle = '#1e293b';
+        backgroundStars.forEach(star => {
+            ctx.fillRect(star.x, star.y, star.size, star.size);
+            star.y += star.speed;
+            if (star.y > canvas.height) star.y = 0;
+        });
+
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        // 2. Draw Text Headers matching 'watermarked_img_6597988955025031108.png'
+        ctx.shadowBlur = 0;
+        ctx.textAlign = 'center';
+        
+        ctx.font = '900 48px monospace';
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillText("READY", centerX, centerY - 120);
+        
+        ctx.fillStyle = '#3cfc4c';
+        ctx.fillText("PLAYER ONE", centerX, centerY - 60);
+
+        // 3. Draw Target Press Start Button
+        if (!startButtonDestroyed) {
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 4;
+            ctx.strokeRect((canvas.width - btnWidth) / 2, btnY, btnWidth, btnHeight);
+            
+            ctx.font = 'bold 24px monospace';
+            ctx.fillStyle = '#38bdf8';
+            ctx.textBaseline = 'middle';
+            ctx.fillText("PRESS START", centerX, btnY + (btnHeight / 2));
+        }
+
+        // 4. Update and Draw Moving Rocket Coordinates
+        angle += 0.015;
+        rocket.x = centerX + Math.cos(angle) * (centerX * 0.6);
+        rocket.y = (centerY - 40) + Math.sin(angle * 2) * 120; // Figure-8 flying pattern path
+        rocket.angle = angle + Math.PI / 2;
+
+        // Draw Rocket Engine Exhaust trail particles
+        if (Math.random() > 0.3) {
+            particles.push({
+                x: rocket.x - Math.cos(rocket.angle) * 20,
+                y: rocket.y - Math.sin(rocket.angle) * 20,
+                vx: (Math.random() - 0.5) * 2 - Math.cos(rocket.angle) * 3,
+                vy: (Math.random() - 0.5) * 2 - Math.sin(rocket.angle) * 3,
+                color: Math.random() > 0.5 ? '#ff4500' : '#ffcc00',
+                alpha: 1,
+                size: Math.random() * 4 + 2,
+                decay: 0.05
+            });
+        }
+
+        drawPixelRocket(ctx, rocket.x, rocket.y, 1, rocket.angle);
+
+        // 5. Manage Projectiles
+        for (let i = bullets.length - 1; i >= 0; i--) {
+            let b = bullets[i];
+            b.x += b.vx;
+            b.y += b.vy;
+
+            // Render green neon bolt
+            ctx.fillStyle = '#3cfc4c';
+            ctx.shadowColor = '#3cfc4c';
+            ctx.shadowBlur = 10;
+            ctx.fillRect(b.x - b.radius, b.y - b.radius, b.radius * 2, b.radius * 2);
+            ctx.shadowBlur = 0; // Reset canvas shadows immediately
+
+            // Dynamic Collision Detection against Target Box Bounds
+            const targetBoxX = (canvas.width - btnWidth) / 2;
+            if (!startButtonDestroyed && b.x > targetBoxX && b.x < targetBoxX + btnWidth && b.y > btnY && b.y < btnY + btnHeight) {
+                bullets.splice(i, 1);
+                startButtonDestroyed = true;
+                spawnExplosion(centerX, btnY + btnHeight / 2, ['#38bdf8', '#3cfc4c', '#ffffff', '#ef4444']);
+                
+                // Fire off clear gate fade transition routine sequence
+                setTimeout(unlockPortfolio, 800);
+                continue;
+            }
+
+            // Remove out-of-bounds shots
+            if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
+                bullets.splice(i, 1);
+            }
+        }
+
+        // 6. Manage Explosion and Trail Particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.alpha -= p.decay;
+
+            if (p.alpha <= 0) {
+                particles.splice(i, 1);
+            } else {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.alpha;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        requestAnimationFrame(updateGame);
+    }
+
+    function unlockPortfolio() {
+        if (transitionStarted) return;
+        transitionStarted = true;
+        const gate = document.getElementById('game-gate');
+        gate.style.transition = 'opacity 0.8s steps(10, end)';
+        gate.style.opacity = '0';
+        setTimeout(() => {
+            gate.style.display = 'none';
+        }, 800);
+    }
+
+    // Start Engine On Load
+    updateGame();
+</script>
 
 <script>
     const canvas = document.getElementById('gateCanvas');
